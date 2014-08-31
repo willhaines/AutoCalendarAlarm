@@ -20,7 +20,9 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.apache.http.message.BasicNameValuePair;
 
@@ -106,7 +108,15 @@ public class MyActivity extends Activity implements AdapterView.OnItemSelectedLi
         // An item was selected. You can retrieve the selected item using
         Calendar = (String[]) Calendars.get(parent.getItemAtPosition(pos).toString());
         Log.d("foo", Calendar[0]);
+    }
 
+    public void onNothingSelected(AdapterView<?> parent)
+    {
+        Toast.makeText(this, "Nothing selected.", Toast.LENGTH_SHORT).show();
+    }
+
+    public void onToggleClicked(View view)
+    {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmReceiver.class);
         intent.setAction(ALARM_ACTION_NAME);
@@ -115,12 +125,15 @@ public class MyActivity extends Activity implements AdapterView.OnItemSelectedLi
         intent.putExtras(bundle);
 
         PendingIntent alarmIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 42, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, 5000, alarmIntent);
-    }
 
-    public void onNothingSelected(AdapterView<?> parent)
-    {
-        Toast.makeText(this, "Nothing selected.", Toast.LENGTH_SHORT).show();
+        // Is the toggle on?
+        boolean on = ((Switch) view).isChecked();
+
+        if (on) {
+            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, 5000, alarmIntent);
+        } else {
+            alarmManager.cancel(alarmIntent);
+        }
     }
 
 }
